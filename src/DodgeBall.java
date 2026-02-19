@@ -3,9 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-
 import javax.swing.Timer;
-
 import acm.graphics.*;
 import acm.program.GraphicsProgram;
 import acm.util.RandomGenerator;
@@ -16,7 +14,7 @@ public class DodgeBall extends GraphicsProgram implements ActionListener {
 	private GLabel text;
 	private Timer movement;
 	private RandomGenerator rgen;
-	private int numTimes = 0; // Tracks survival time/enemy pacing
+	private int numTimes = 0; // To track survival time/enemy pacing
 	
 	public static final int SIZE = 25;
 	public static final int SPEED = 2;
@@ -57,12 +55,34 @@ public class DodgeBall extends GraphicsProgram implements ActionListener {
 			add(new GLabel("You lost! Survival: " + numTimes, 50, WINDOW_HEIGHT/2));
 		}
 	}
+
+	private void moveAllEnemiesOnce() {
+		for (GRect enemy : enemies) {
+			enemy.move(0, rgen.nextInt(-2, 2));
+		}
+	}
+
+	private void checkCollisions() {
+		for (int i = 0; i < balls.size(); i++) {
+			GOval ball = balls.get(i);
+			// Check point in front of the ball
+			double checkX = ball.getX() + ball.getWidth() + 1;
+			double checkY = ball.getY() + ball.getHeight() / 2;
+			
+			GObject hit = getElementAt(checkX, checkY);
+			if (hit instanceof GRect && hit != text) {
+				remove(hit);
+				enemies.remove(hit);
+				text.setLabel("Enemies Destroyed: " + (numTimes/40 - enemies.size()));
+			}
+		}
+	}
+    
+    // ... (rest of the helper methods provided in your snippet) ...
 	
 	public void mousePressed(MouseEvent e) {
 		for(GOval b:balls) {
-			if(b.getX() < SIZE * 2.5) {
-				return;
-			}
+			if(b.getX() < SIZE * 2.5) return;
 		}
 		addABall(e.getY());     
 	}
@@ -83,7 +103,6 @@ public class DodgeBall extends GraphicsProgram implements ActionListener {
 	private void addAnEnemy() {
 		GRect e = makeEnemy(rgen.nextInt(0, WINDOW_HEIGHT-SIZE/2));
 		enemies.add(e);
-		text.setLabel("" + enemies.size());
 		add(e);
 	}
 	
@@ -100,11 +119,6 @@ public class DodgeBall extends GraphicsProgram implements ActionListener {
 		}
 	}
 	
-	public void init() {
-		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-	}
-	
-	public static void main(String args[]) {
-		new DodgeBall().start();
-	}
+	public void init() { setSize(WINDOW_WIDTH, WINDOW_HEIGHT); }
+	public static void main(String args[]) { new DodgeBall().start(); }
 }
