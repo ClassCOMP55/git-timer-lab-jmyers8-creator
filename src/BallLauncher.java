@@ -5,23 +5,43 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
-public class BallLauncher extends GraphicsProgram{
+public class BallLauncher extends GraphicsProgram implements ActionListener {
 	public static final int PROGRAM_HEIGHT = 600;
 	public static final int PROGRAM_WIDTH = 800;
 	public static final int SIZE = 25;
+	public static final int MS = 50;
+	public static final int SPEED = 2;
 	
+	private ArrayList<GOval> balls;
+	private Timer movement;
+
 	public void init() {
 		setSize(PROGRAM_WIDTH, PROGRAM_HEIGHT);
 		requestFocus();
 	}
 	
 	public void run() {
+		balls = new ArrayList<GOval>();
+		movement = new Timer(MS, this);
+		movement.start();
 		addMouseListeners();
 	}
 	
 	public void mousePressed(MouseEvent e) {
+		// Check if any ball is still near the start
+		for (GOval b : balls) {
+			if (b.getX() < 100) return;
+		}
+		
 		GOval ball = makeBall(SIZE/2, e.getY());
+		balls.add(ball);
 		add(ball);
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		for (GOval ball : balls) {
+			ball.move(SPEED, 0);
+		}
 	}
 	
 	public GOval makeBall(double x, double y) {
@@ -34,5 +54,5 @@ public class BallLauncher extends GraphicsProgram{
 	public static void main(String[] args) {
 		new BallLauncher().start();
 	}
-
 }
+
